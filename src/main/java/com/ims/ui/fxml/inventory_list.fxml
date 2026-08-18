@@ -1,0 +1,6 @@
+<VBox fx:controller="com.ims.ui.controllers.InventoryListController"
+      xmlns:fx="http://javafx.com/fxml" spacing="10">
+    <TextField fx:id="searchField" promptText="Search items..."/>
+    <Button text="Search" onAction="#handleSearch"/>
+    <TableView fx:id="itemsTable"/>
+</VBox>
