@@ -1,5 +1,12 @@
-<VBox fx:controller="com.ims.ui.controllers.InventoryListController"
-      xmlns:fx="http://javafx.com/fxml" spacing="10">
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.ims.ui.controllers.InventoryListController" spacing="10">
     <TextField fx:id="searchField" promptText="Search items..."/>
     <Button text="Search" onAction="#handleSearch"/>
     <TableView fx:id="itemsTable"/>
