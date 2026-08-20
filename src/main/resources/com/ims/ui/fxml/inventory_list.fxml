@@ -4,10 +4,19 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TableColumn?>
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.ims.ui.controllers.InventoryListController" spacing="10">
     <TextField fx:id="searchField" promptText="Search items..."/>
     <Button text="Search" onAction="#handleSearch"/>
-    <TableView fx:id="itemsTable"/>
+    <TableView fx:id="itemsTable">
+    <columns>
+        <TableColumn fx:id="nameColumn" text="Name"/>
+        <TableColumn fx:id="categoryColumn" text="Category"/>
+        <TableColumn fx:id="priceColumn" text="Price"/>
+        <TableColumn fx:id="quantityColumn" text="Quantity"/>
+    </columns>
+</TableView>
 </VBox>
+
