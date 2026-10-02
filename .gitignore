@@ -1,2 +1,8 @@
 #Ignore all compiled Java class files
 *.class
+
+# Maven build output
+target/
+
+# Local SQLite database file
+*.db
