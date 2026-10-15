@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.ims.ui.controllers.ReportsController" spacing="15">
+
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <Label fx:id="reportTitleLabel" text="Analytics &amp; Performance Reports" style="-fx-font-size: 18px; -fx-font-weight: bold;" HBox.hgrow="ALWAYS"/>
+        <Button fx:id="exportPdfBtn" text="Export PDF Report" onAction="#handleExportPDF" style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-weight: bold;"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: #ecf0f1; -fx-padding: 10; -fx-background-radius: 5;">
+        <Label text="Start Date:"/>
+        <DatePicker fx:id="startDatePicker"/>
+        <Label text="End Date:"/>
+        <DatePicker fx:id="endDatePicker"/>
+        <Button text="Filter Metrics" onAction="#handleFilterReports" style="-fx-background-color: #2980b9; -fx-text-fill: white;"/>
+    </HBox>
+
+    <GridPane hgap="15" vgap="10">
+        <VBox style="-fx-background-color: #27ae60; -fx-padding: 15; -fx-background-radius: 5;" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label text="Today's Sales" style="-fx-text-fill: white; -fx-font-size: 12px;"/>
+            <Label fx:id="todaySalesLabel" text="KSh 0.00" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+        </VBox>
+
+        <VBox style="-fx-background-color: #2980b9; -fx-padding: 15; -fx-background-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label text="This Week's Sales" style="-fx-text-fill: white; -fx-font-size: 12px;"/>
+            <Label fx:id="weekSalesLabel" text="KSh 0.00" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+        </VBox>
+
+        <VBox style="-fx-background-color: #8e44ad; -fx-padding: 15; -fx-background-radius: 5;" GridPane.columnIndex="2" GridPane.rowIndex="0">
+            <Label text="This Month's Sales" style="-fx-text-fill: white; -fx-font-size: 12px;"/>
+            <Label fx:id="monthSalesLabel" text="KSh 0.00" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+        </VBox>
+
+        <VBox style="-fx-background-color: #d35400; -fx-padding: 15; -fx-background-radius: 5;" GridPane.columnIndex="3" GridPane.rowIndex="0">
+            <Label text="Estimated Commission" style="-fx-text-fill: white; -fx-font-size: 12px;"/>
+            <Label fx:id="commissionLabel" text="KSh 0.00" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+        </VBox>
+    </GridPane>
+
+    <VBox fx:id="adminUserManagementBox" spacing="10" style="-fx-border-color: #bdc3c7; -fx-padding: 10; -fx-border-radius: 5;" visible="false" managed="false">
+        <Label text="User Management (Add New Account)" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+        <HBox spacing="10">
+            <TextField fx:id="newUserNameInput" promptText="Full Name"/>
+            <ComboBox fx:id="newUserRoleCombo" promptText="Select Role"/>
+            <PasswordField fx:id="newUserPasswordInput" promptText="Password"/>
+            <TextField fx:id="newUserCommissionInput" promptText="Commission Rate (e.g. 0.05)"/>
+            <Button text="Create User" onAction="#handleCreateUser" style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
+        </HBox>
+        <Label fx:id="userCreationStatusLabel"/>
+    </VBox>
+
+    <Label text="Filtered Transactions Audit" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+    <TableView fx:id="reportSalesTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="saleIdCol" text="Sale ID"/>
+            <TableColumn fx:id="itemIdCol" text="Item ID"/>
+            <TableColumn fx:id="qtyCol" text="Qty Sold"/>
+            <TableColumn fx:id="totalCol" text="Total Revenue"/>
+            <TableColumn fx:id="dateCol" text="Timestamp"/>
+            <TableColumn fx:id="shopkeeperCol" text="Shopkeeper ID"/>
+        </columns>
+    </TableView>
+</VBox>
