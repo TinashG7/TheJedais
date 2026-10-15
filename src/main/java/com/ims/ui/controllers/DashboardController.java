@@ -23,10 +23,7 @@ public class DashboardController {
 
     @FXML
     public void initialize() {
-        // Check database for low-stock items and update alert banner
         checkLowStockAlerts();
-
-        // Default view on load: Inventory List
         showInventoryView();
     }
 
@@ -47,20 +44,19 @@ public class DashboardController {
     @FXML
     public void showInventoryView() {
         loadView("/com/ims/ui/fxml/inventory_list.fxml");
-        // Re-check alerts when switching views
         checkLowStockAlerts();
     }
 
     @FXML
     public void showSalesView() {
-        // Navigation route placeholder
-        System.out.println("Navigating to Sales View...");
+        loadView("/com/ims/ui/fxml/sales.fxml");
+        checkLowStockAlerts();
     }
 
     @FXML
     public void showOrdersView() {
-        // Navigation route placeholder
-        System.out.println("Navigating to Stock Orders View...");
+        loadView("/com/ims/ui/fxml/stock_orders.fxml");
+        checkLowStockAlerts();
     }
 
     private void loadView(String fxmlPath) {
