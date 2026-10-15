@@ -5,11 +5,13 @@ import java.util.List;
 
 import com.ims.dao.ItemDAO;
 import com.ims.model.Item;
+import com.ims.util.SessionManager;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -21,19 +23,42 @@ public class DashboardController {
     @FXML private HBox alertBanner;
     @FXML private Label alertLabel;
 
+    @FXML private Button inventoryBtn;
+    @FXML private Button salesBtn;
+    @FXML private Button ordersBtn;
+    @FXML private Button reportsBtn;
+    @FXML private Button adminPanelBtn;
+
     private final ItemDAO itemDAO = new ItemDAO();
 
     @FXML
     public void initialize() {
         checkLowStockAlerts();
-        showInventoryView();
+
+        // Role-based navigation setup
+        if (SessionManager.isAdmin()) {
+            if (inventoryBtn != null) { inventoryBtn.setVisible(false); inventoryBtn.setManaged(false); }
+            if (salesBtn != null) { salesBtn.setVisible(false); salesBtn.setManaged(false); }
+            if (ordersBtn != null) { ordersBtn.setVisible(false); ordersBtn.setManaged(false); }
+            if (reportsBtn != null) { reportsBtn.setVisible(false); reportsBtn.setManaged(false); }
+
+            showAdminView();
+        } else if (SessionManager.isShopkeeper()) {
+            if (adminPanelBtn != null) { adminPanelBtn.setVisible(false); adminPanelBtn.setManaged(false); }
+
+            // Shopkeeper lands directly on Reports page first
+            showReportsView();
+        } else {
+            // Owner view: default to Reports/Analytics
+            showReportsView();
+        }
     }
 
     private void checkLowStockAlerts() {
         try {
             List<Item> lowStockItems = itemDAO.getLowStockItems();
             if (lowStockItems != null && !lowStockItems.isEmpty()) {
-                alertLabel.setText("Alert: " + lowStockItems.size() + " item(s) are below the low stock threshold!");
+                alertLabel.setText("Alert: " + lowStockItems.size() + " item(s) are below low stock threshold!");
                 alertBanner.setVisible(true);
             } else {
                 alertBanner.setVisible(false);
@@ -43,32 +68,17 @@ public class DashboardController {
         }
     }
 
-    @FXML
-    public void showInventoryView() {
-        loadView("/com/ims/ui/fxml/inventory_list.fxml");
-        checkLowStockAlerts();
-    }
+    @FXML public void showReportsView() { loadView("/com/ims/ui/fxml/reports.fxml"); checkLowStockAlerts(); }
+    @FXML public void showInventoryView() { loadView("/com/ims/ui/fxml/inventory_list.fxml"); checkLowStockAlerts(); }
+    @FXML public void showSalesView() { loadView("/com/ims/ui/fxml/sales.fxml"); checkLowStockAlerts(); }
+    @FXML public void showOrdersView() { loadView("/com/ims/ui/fxml/stock_orders.fxml"); checkLowStockAlerts(); }
+    @FXML public void showAdminView() { loadView("/com/ims/ui/fxml/admin_dashboard.fxml"); }
 
-    @FXML
-    public void showSalesView() {
-        loadView("/com/ims/ui/fxml/sales.fxml");
-        checkLowStockAlerts();
-    }
-
-    @FXML
-    public void showOrdersView() {
-        loadView("/com/ims/ui/fxml/stock_orders.fxml");
-        checkLowStockAlerts();
-    }
-
-    @FXML
-    public void handleSwitchUser() {
-        redirectToLogin();
-    }
+    @FXML public void handleSwitchUser() { redirectToLogin(); }
 
     @FXML
     public void handleLogout() {
-        // Reset active user session back to default 0 before returning to login
+        SessionManager.setCurrentUser(null);
         SalesController.setCurrentLoggedInUserId(0);
         redirectToLogin();
     }

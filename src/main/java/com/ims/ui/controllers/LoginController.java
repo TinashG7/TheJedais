@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.ims.dao.UserDAO;
 import com.ims.model.User;
+import com.ims.util.SessionManager;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -34,7 +35,7 @@ public class LoginController {
         String passInput = passwordField.getText().trim();
 
         if (userInput.isEmpty()) {
-            showStatus("Please enter your User ID or Name.", true);
+            showStatus("Please enter your Username or User ID.", true);
             return;
         }
 
@@ -57,8 +58,8 @@ public class LoginController {
             return;
         }
 
-        // Validate password
         if (user.getPassword() != null && user.getPassword().equals(passInput)) {
+            SessionManager.setCurrentUser(user);
             SalesController.setCurrentLoggedInUserId(user.getUserId());
             loadDashboard(user);
         } else {
@@ -75,6 +76,7 @@ public class LoginController {
             stage.setScene(scene);
             stage.setTitle("Joshua's Shop IMS - Logged in as " + user.getName() + " (" + user.getRole() + ")");
             stage.centerOnScreen();
+
         } catch (IOException e) {
             showStatus("Failed to launch dashboard: " + e.getMessage(), true);
             e.printStackTrace();
