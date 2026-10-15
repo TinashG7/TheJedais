@@ -16,16 +16,12 @@ public class InventoryListController {
     @FXML private TextField searchField;
     @FXML private ComboBox<String> categoryFilterCombo;
     @FXML private TableView<Item> itemsTable;
-    
-    // Added
     @FXML private TableColumn<Item, Integer> itemIdColumn;
-    // End of added
     @FXML private TableColumn<Item, String> nameColumn;
     @FXML private TableColumn<Item, String> categoryColumn;
     @FXML private TableColumn<Item, Double> priceColumn;
     @FXML private TableColumn<Item, Integer> quantityColumn;
 
-    // Added
     // Form Inputs
     @FXML private TextField nameInput;
     @FXML private TextField categoryInput;
@@ -33,7 +29,6 @@ public class InventoryListController {
     @FXML private TextField costPriceInput;
     @FXML private TextField quantityInput;
     @FXML private TextField thresholdInput;
-    // End of added
 
     private final ObservableList<Item> masterItemList = FXCollections.observableArrayList();
     private FilteredList<Item> filteredData;
@@ -43,9 +38,7 @@ public class InventoryListController {
 
     @FXML
     public void initialize() {
-        // Added
         itemIdColumn.setCellValueFactory(new PropertyValueFactory<>("itemId"));
-        // End of added
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
@@ -85,7 +78,6 @@ public class InventoryListController {
         applyFilters();
     }
 
-    // Added
     @FXML
     public void handleAddItem() {
         try {
@@ -111,7 +103,6 @@ public class InventoryListController {
             System.err.println("Invalid numeric input for Price, Cost Price, Quantity, or Threshold.");
         }
     }
-    // End of added
 
     private void applyFilters() {
         String keyword = searchField.getText();
