@@ -21,7 +21,7 @@
     <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 20; -fx-border-color: #bdc3c7; -fx-border-radius: 5; -fx-background-radius: 5;">
         <VBox spacing="3">
             <Label text="Username or User ID" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
-            <TextField fx:id="userIdField" promptText="Enter Joshua, Jedais, Pamela, or User ID"/>
+            <TextField fx:id="userIdField" promptText="Enter Username or User ID"/>
         </VBox>
 
         <VBox spacing="3">
@@ -29,7 +29,8 @@
             <PasswordField fx:id="passwordField" promptText="Enter password"/>
         </VBox>
 
-        <Button text="Login" onAction="#handleLogin" maxWidth="Infinity" 
+        <!-- defaultButton="true" triggers action on Enter key -->
+        <Button text="Login" onAction="#handleLogin" defaultButton="true" maxWidth="Infinity" 
                 style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8;"/>
     </VBox>
 </VBox>
