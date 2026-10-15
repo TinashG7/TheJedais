@@ -14,12 +14,15 @@
     
     <Label text="Record New Sale" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
 
+    <!-- Status Alert Label for UI feedback -->
+    <Label fx:id="statusMessageLabel" style="-fx-font-weight: bold;"/>
+
     <!-- Record Sale Form -->
     <VBox spacing="10" style="-fx-border-color: lightgray; -fx-padding: 10; -fx-border-radius: 5;">
         <HBox spacing="10" alignment="CENTER_LEFT">
-            <ComboBox fx:id="itemComboBox" promptText="Select Item" HBox.hgrow="ALWAYS"/>
+            <ComboBox fx:id="itemComboBox" promptText="Type item name..." HBox.hgrow="ALWAYS"/>
             <TextField fx:id="quantityField" promptText="Quantity Sold"/>
-            <TextField fx:id="shopkeeperIdField" promptText="Shopkeeper User ID"/>
+            <TextField fx:id="shopkeeperIdField" promptText="Shopkeeper ID"/>
             <Button text="Complete Sale" onAction="#handleRecordSale"/>
         </HBox>
         <HBox spacing="10">
