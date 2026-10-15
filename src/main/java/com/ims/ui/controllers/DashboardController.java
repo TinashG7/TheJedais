@@ -9,9 +9,11 @@ import com.ims.model.Item;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 
 public class DashboardController {
 
@@ -57,6 +59,33 @@ public class DashboardController {
     public void showOrdersView() {
         loadView("/com/ims/ui/fxml/stock_orders.fxml");
         checkLowStockAlerts();
+    }
+
+    @FXML
+    public void handleSwitchUser() {
+        redirectToLogin();
+    }
+
+    @FXML
+    public void handleLogout() {
+        // Reset active user session back to default 0 before returning to login
+        SalesController.setCurrentLoggedInUserId(0);
+        redirectToLogin();
+    }
+
+    private void redirectToLogin() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ims/ui/fxml/login.fxml"));
+            Scene scene = new Scene(loader.load());
+
+            Stage stage = (Stage) mainLayout.getScene().getWindow();
+            stage.setScene(scene);
+            stage.setTitle("Joshua's Shop IMS - Login");
+            stage.centerOnScreen();
+        } catch (IOException e) {
+            System.err.println("Failed to load login view: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void loadView(String fxmlPath) {

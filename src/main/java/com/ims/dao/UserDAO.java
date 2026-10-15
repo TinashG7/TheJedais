@@ -34,7 +34,7 @@ public class UserDAO {
     }
 
     public User getUserByName(String name) {
-        String sql = "SELECT * FROM users WHERE name = ?";
+        String sql = "SELECT * FROM users WHERE name LIKE ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -75,14 +75,15 @@ public class UserDAO {
     }
 
     public void addUser(User user) {
-        String sql = "INSERT INTO users (name, role, commission_rate) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO users (name, role, password, commission_rate) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, user.getName());
             stmt.setString(2, user.getRole());
-            stmt.setDouble(3, user.getCommissionRate());
+            stmt.setString(3, user.getPassword());
+            stmt.setDouble(4, user.getCommissionRate());
 
             stmt.executeUpdate();
 
@@ -97,22 +98,41 @@ public class UserDAO {
         }
     }
 
-    public void ensureDefaultUserExists() {
-        String checkSql = "SELECT COUNT(*) FROM users";
-        String insertSql = "INSERT INTO users (user_id, name, role, commission_rate) VALUES (1, 'Admin Shopkeeper', 'shopkeeper', 0.05)";
+    public void ensureDefaultUsersExist() {
+        String sql = "INSERT OR IGNORE INTO users (user_id, name, role, password, commission_rate) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement checkStmt = conn.prepareStatement(checkSql);
-             ResultSet rs = checkStmt.executeQuery()) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            if (rs.next() && rs.getInt(1) == 0) {
-                try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
-                    insertStmt.executeUpdate();
-                    System.out.println("Default shopkeeper account created (ID: 1).");
-                }
-            }
+            // 1. Joshua - Shopkeeper
+            stmt.setInt(1, 1);
+            stmt.setString(2, "Joshua");
+            stmt.setString(3, "shopkeeper");
+            stmt.setString(4, "joshua123");
+            stmt.setDouble(5, 0.05);
+            stmt.addBatch();
+
+            // 2. Jedais - Admin
+            stmt.setInt(1, 2);
+            stmt.setString(2, "Jedais");
+            stmt.setString(3, "admin");
+            stmt.setString(4, "admin123");
+            stmt.setDouble(5, 0.00);
+            stmt.addBatch();
+
+            // 3. Pamela - Owner
+            stmt.setInt(1, 3);
+            stmt.setString(2, "Pamela");
+            stmt.setString(3, "owner");
+            stmt.setString(4, "pamela123");
+            stmt.setDouble(5, 0.10);
+            stmt.addBatch();
+
+            stmt.executeBatch();
+            System.out.println("Default user accounts seeded successfully.");
+
         } catch (SQLException e) {
-            System.err.println("Failed to seed default user: " + e.getMessage());
+            System.err.println("Failed to seed default user accounts: " + e.getMessage());
         }
     }
 
@@ -121,6 +141,14 @@ public class UserDAO {
         user.setUserId(rs.getInt("user_id"));
         user.setName(rs.getString("name"));
         user.setRole(rs.getString("role"));
+        
+        // Handle database compatibility if password column was added later
+        try {
+            user.setPassword(rs.getString("password"));
+        } catch (SQLException e) {
+            user.setPassword("1234");
+        }
+        
         user.setCommissionRate(rs.getDouble("commission_rate"));
         return user;
     }

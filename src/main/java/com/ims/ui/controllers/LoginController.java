@@ -23,45 +23,57 @@ public class LoginController {
 
     @FXML
     public void initialize() {
-        userDAO.ensureDefaultUserExists();
+        userDAO.ensureDefaultUsersExist();
     }
 
     @FXML
     public void handleLogin() {
         showStatus("", false);
+
+        String userInput = userIdField.getText().trim();
+        String passInput = passwordField.getText().trim();
+
+        if (userInput.isEmpty()) {
+            showStatus("Please enter your User ID or Name.", true);
+            return;
+        }
+
+        if (passInput.isEmpty()) {
+            showStatus("Please enter your password.", true);
+            return;
+        }
+
+        User user = null;
+
         try {
-            String userIdText = userIdField.getText().trim();
-            if (userIdText.isEmpty()) {
-                showStatus("Please enter your User ID.", true);
-                return;
-            }
-
-            int userId = Integer.parseInt(userIdText);
-            User user = userDAO.getUserById(userId);
-
-            if (user != null) {
-                // Pass authenticated Shopkeeper User ID to SalesController
-                SalesController.setCurrentLoggedInUserId(user.getUserId());
-
-                // Redirect to Main Dashboard
-                loadDashboard();
-            } else {
-                showStatus("User ID not found in database.", true);
-            }
-
+            int userId = Integer.parseInt(userInput);
+            user = userDAO.getUserById(userId);
         } catch (NumberFormatException e) {
-            showStatus("User ID must be a numeric ID (e.g. 1).", true);
+            user = userDAO.getUserByName(userInput);
+        }
+
+        if (user == null) {
+            showStatus("Account not found for: " + userInput, true);
+            return;
+        }
+
+        // Validate password
+        if (user.getPassword() != null && user.getPassword().equals(passInput)) {
+            SalesController.setCurrentLoggedInUserId(user.getUserId());
+            loadDashboard(user);
+        } else {
+            showStatus("Invalid password. Please try again.", true);
         }
     }
 
-    private void loadDashboard() {
+    private void loadDashboard(User user) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ims/ui/fxml/dashboard.fxml"));
             Scene scene = new Scene(loader.load());
 
             Stage stage = (Stage) userIdField.getScene().getWindow();
             stage.setScene(scene);
-            stage.setTitle("Joshua's Shop IMS - Dashboard");
+            stage.setTitle("Joshua's Shop IMS - Logged in as " + user.getName() + " (" + user.getRole() + ")");
             stage.centerOnScreen();
         } catch (IOException e) {
             showStatus("Failed to launch dashboard: " + e.getMessage(), true);

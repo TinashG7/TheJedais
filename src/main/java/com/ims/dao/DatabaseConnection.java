@@ -31,6 +31,7 @@ public class DatabaseConnection {
                 user_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 role TEXT NOT NULL,
+                password TEXT NOT NULL DEFAULT '1234',
                 commission_rate REAL DEFAULT 0
             );
             """;
