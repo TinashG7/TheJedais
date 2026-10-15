@@ -1,5 +1,8 @@
 package com.ims.ui.controllers;
 
+import java.util.List;
+
+import com.ims.dao.ItemDAO;
 import com.ims.model.Item;
 
 import javafx.collections.FXCollections;
@@ -16,6 +19,7 @@ public class InventoryListController {
     @FXML private TextField searchField;
     @FXML private ComboBox<String> categoryFilterCombo;
     @FXML private TableView<Item> itemsTable;
+    
     @FXML private TableColumn<Item, Integer> itemIdColumn;
     @FXML private TableColumn<Item, String> nameColumn;
     @FXML private TableColumn<Item, String> categoryColumn;
@@ -24,7 +28,7 @@ public class InventoryListController {
 
     // Form Inputs
     @FXML private TextField nameInput;
-    @FXML private TextField categoryInput;
+    @FXML private ComboBox<String> categoryInputCombo;
     @FXML private TextField priceInput;
     @FXML private TextField costPriceInput;
     @FXML private TextField quantityInput;
@@ -32,9 +36,7 @@ public class InventoryListController {
 
     private final ObservableList<Item> masterItemList = FXCollections.observableArrayList();
     private FilteredList<Item> filteredData;
-
-    // Counter to auto-increment itemId for newly created items
-    private int nextItemId = 1;
+    private final ItemDAO itemDAO = new ItemDAO();
 
     @FXML
     public void initialize() {
@@ -44,28 +46,37 @@ public class InventoryListController {
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantityInStock"));
 
-        // Add initial sample items using the auto-incrementing addItem helper method
-        addItem("Sugar 1kg", "Groceries", 150.0, 120.0, 50, 10);
-        addItem("Flour 1kg", "Groceries", 200.0, 150.0, 60, 10);
-        addItem("Notebook A4", "Stationery", 80.0, 50.0, 100, 20);
+        // Load items from database on startup
+        loadItemsFromDatabase();
 
-        // Wrap the master list in a FilteredList
         filteredData = new FilteredList<>(masterItemList, p -> true);
-
-        // Bind filtered data to the TableView
         itemsTable.setItems(filteredData);
 
-        // Populate category dropdown
+        // Populate search filter dropdown
         if (categoryFilterCombo != null) {
-            categoryFilterCombo.getItems().addAll("All Categories", "Groceries", "Stationery", "Electronics");
+            categoryFilterCombo.getItems().addAll("All Categories", "Groceries", "Stationery", "Electronics", "Beverages");
             categoryFilterCombo.setValue("All Categories");
             categoryFilterCombo.setOnAction(e -> applyFilters());
         }
 
-        // Listen for live text changes in search field
+        // Populate form category dropdown
+        if (categoryInputCombo != null) {
+            categoryInputCombo.getItems().addAll("Groceries", "Stationery", "Electronics", "Beverages");
+        }
+
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             applyFilters();
         });
+    }
+
+    private void loadItemsFromDatabase() {
+        try {
+            List<Item> dbItems = itemDAO.getAllItems();
+            masterItemList.setAll(dbItems);
+        } catch (Exception e) {
+            System.err.println("Error loading items from DB: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -82,23 +93,35 @@ public class InventoryListController {
     public void handleAddItem() {
         try {
             String name = nameInput.getText();
-            String category = categoryInput.getText();
+            String category = categoryInputCombo.getValue();
+            
+            if (name == null || name.trim().isEmpty() || category == null) {
+                System.err.println("Please enter an item name and select a category.");
+                return;
+            }
+
             double price = Double.parseDouble(priceInput.getText());
             double costPrice = Double.parseDouble(costPriceInput.getText());
             int quantity = Integer.parseInt(quantityInput.getText());
             int threshold = Integer.parseInt(thresholdInput.getText());
 
-            if (name != null && !name.trim().isEmpty()) {
-                addItem(name, category, price, costPrice, quantity, threshold);
+            // Create item object (0 for itemId as DB auto-increments item_id)
+            Item newItem = new Item(0, name, category, price, costPrice, quantity, threshold);
 
-                // Clear input fields after adding
-                nameInput.clear();
-                categoryInput.clear();
-                priceInput.clear();
-                costPriceInput.clear();
-                quantityInput.clear();
-                thresholdInput.clear();
-            }
+            // Save to database
+            itemDAO.addItem(newItem);
+
+            // Reload database items to update table with generated ID
+            loadItemsFromDatabase();
+
+            // Clear inputs
+            nameInput.clear();
+            categoryInputCombo.setValue(null);
+            priceInput.clear();
+            costPriceInput.clear();
+            quantityInput.clear();
+            thresholdInput.clear();
+
         } catch (NumberFormatException e) {
             System.err.println("Invalid numeric input for Price, Cost Price, Quantity, or Threshold.");
         }
@@ -109,14 +132,12 @@ public class InventoryListController {
         String selectedCategory = (categoryFilterCombo != null) ? categoryFilterCombo.getValue() : null;
 
         filteredData.setPredicate(item -> {
-            // 1. Check Category Match
             boolean matchesCategory = true;
             if (selectedCategory != null && !"All Categories".equals(selectedCategory)) {
                 matchesCategory = item.getCategory() != null && 
                                   item.getCategory().equalsIgnoreCase(selectedCategory);
             }
 
-            // 2. Check Search Keyword Match
             boolean matchesSearch = true;
             if (keyword != null && !keyword.trim().isEmpty()) {
                 String lowerCaseFilter = keyword.toLowerCase().trim();
@@ -126,17 +147,5 @@ public class InventoryListController {
 
             return matchesCategory && matchesSearch;
         });
-    }
-
-    /**
-     * Helper method to add an item with an automatically assigned itemId.
-     */
-    public void addItem(String name, String category, double price, double costPrice, int quantity, int threshold) {
-        Item newItem = new Item(nextItemId++, name, category, price, costPrice, quantity, threshold);
-        masterItemList.add(newItem);
-    }
-
-    public int getNextItemId() {
-        return nextItemId;
     }
 }

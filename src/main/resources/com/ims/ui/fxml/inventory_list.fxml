@@ -22,9 +22,7 @@
     <!-- Table View -->
     <TableView fx:id="itemsTable">
         <columns>
-            <!-- Added -->
             <TableColumn fx:id="itemIdColumn" text="ID"/>
-            <!-- End of added -->
             <TableColumn fx:id="nameColumn" text="Name"/>
             <TableColumn fx:id="categoryColumn" text="Category"/>
             <TableColumn fx:id="priceColumn" text="Price"/>
@@ -32,13 +30,12 @@
         </columns>
     </TableView>
 
-    <!-- Added -->
     <!-- Add Item Form -->
     <VBox spacing="5" style="-fx-border-color: lightgray; -fx-padding: 10; -fx-border-radius: 5;">
         <Label text="Add New Item" style="-fx-font-weight: bold;"/>
         <HBox spacing="10">
             <TextField fx:id="nameInput" promptText="Item Name" HBox.hgrow="ALWAYS"/>
-            <TextField fx:id="categoryInput" promptText="Category"/>
+            <ComboBox fx:id="categoryInputCombo" promptText="Select Category"/>
             <TextField fx:id="priceInput" promptText="Selling Price"/>
             <TextField fx:id="costPriceInput" promptText="Cost Price"/>
             <TextField fx:id="quantityInput" promptText="Quantity"/>
@@ -46,5 +43,4 @@
             <Button text="Add Item" onAction="#handleAddItem"/>
         </HBox>
     </VBox>
-    <!-- End of added -->
 </VBox>
