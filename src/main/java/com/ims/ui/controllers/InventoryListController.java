@@ -11,6 +11,7 @@ import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -46,20 +47,34 @@ public class InventoryListController {
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantityInStock"));
 
-        // Load items from database on startup
+        // Row highlighting: Red for stock == 0, Yellow for stock <= threshold
+        itemsTable.setRowFactory(tv -> new TableRow<Item>() {
+            @Override
+            protected void updateItem(Item item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setStyle("");
+                } else if (item.getQuantityInStock() == 0) {
+                    setStyle("-fx-background-color: #ff9999; -fx-text-fill: black;"); // Red highlight
+                } else if (item.getQuantityInStock() <= item.getLowStockThreshold()) {
+                    setStyle("-fx-background-color: #fff2ac; -fx-text-fill: black;"); // Yellow highlight
+                } else {
+                    setStyle("");
+                }
+            }
+        });
+
         loadItemsFromDatabase();
 
         filteredData = new FilteredList<>(masterItemList, p -> true);
         itemsTable.setItems(filteredData);
 
-        // Populate search filter dropdown
         if (categoryFilterCombo != null) {
             categoryFilterCombo.getItems().addAll("All Categories", "Groceries", "Stationery", "Electronics", "Beverages");
             categoryFilterCombo.setValue("All Categories");
             categoryFilterCombo.setOnAction(e -> applyFilters());
         }
 
-        // Populate form category dropdown
         if (categoryInputCombo != null) {
             categoryInputCombo.getItems().addAll("Groceries", "Stationery", "Electronics", "Beverages");
         }
@@ -105,16 +120,11 @@ public class InventoryListController {
             int quantity = Integer.parseInt(quantityInput.getText());
             int threshold = Integer.parseInt(thresholdInput.getText());
 
-            // Create item object (0 for itemId as DB auto-increments item_id)
             Item newItem = new Item(0, name, category, price, costPrice, quantity, threshold);
 
-            // Save to database
             itemDAO.addItem(newItem);
-
-            // Reload database items to update table with generated ID
             loadItemsFromDatabase();
 
-            // Clear inputs
             nameInput.clear();
             categoryInputCombo.setValue(null);
             priceInput.clear();

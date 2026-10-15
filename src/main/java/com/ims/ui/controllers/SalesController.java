@@ -1,6 +1,7 @@
 package com.ims.ui.controllers;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.ims.dao.ItemDAO;
@@ -14,6 +15,7 @@ import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -27,7 +29,7 @@ public class SalesController {
     @FXML private TextField shopkeeperIdField;
     @FXML private Label unitPriceLabel;
     @FXML private Label totalAmountLabel;
-    @FXML private Label statusMessageLabel; // Added UI feedback label for shopkeeper alerts
+    @FXML private Label statusMessageLabel;
 
     @FXML private TableView<Sale> salesTable;
     @FXML private TableColumn<Sale, Integer> saleIdColumn;
@@ -41,12 +43,13 @@ public class SalesController {
     private final SaleDAO saleDAO = new SaleDAO();
     private final ObservableList<Sale> salesList = FXCollections.observableArrayList();
     
-    // Master item list & filtered list for dynamic typing in ComboBox
     private final ObservableList<Item> masterItemList = FXCollections.observableArrayList();
     private FilteredList<Item> filteredItemList;
 
-    // Simulated session user ID (Default 1 for now, automatically replaced when login is completed)
     private static int currentLoggedInUserId = 1;
+
+    // Formatter to remove 'T' and milliseconds
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @FXML
     public void initialize() {
@@ -57,7 +60,19 @@ public class SalesController {
         dateColumn.setCellValueFactory(new PropertyValueFactory<>("saleDate"));
         shopkeeperColumn.setCellValueFactory(new PropertyValueFactory<>("shopkeeperId"));
 
-        // Auto-populate shopkeeper ID and make it non-editable (auto-updated from session)
+        // Format Date column to eliminate 'T' and milliseconds
+        dateColumn.setCellFactory(column -> new TableCell<Sale, LocalDateTime>() {
+            @Override
+            protected void updateItem(LocalDateTime item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.format(DATE_FORMATTER));
+                }
+            }
+        });
+
         shopkeeperIdField.setText(String.valueOf(currentLoggedInUserId));
         shopkeeperIdField.setEditable(false);
 
@@ -78,7 +93,8 @@ public class SalesController {
         filteredItemList = new FilteredList<>(masterItemList, p -> true);
 
         itemComboBox.setItems(filteredItemList);
-        itemComboBox.setEditable(true); // Allows user to type letters to search
+        itemComboBox.setEditable(true);
+        itemComboBox.setVisibleRowCount(10); // Show up to 10 items without needing immediately restricted scrolling
 
         itemComboBox.setConverter(new StringConverter<>() {
             @Override
@@ -92,11 +108,9 @@ public class SalesController {
             }
         });
 
-        // Dynamic typing filter listener
         itemComboBox.getEditor().textProperty().addListener((obs, oldValue, newValue) -> {
             final Item selectedItem = itemComboBox.getSelectionModel().getSelectedItem();
             
-            // Avoid filtering if user selected an item directly from the list
             if (selectedItem != null && itemComboBox.getConverter().toString(selectedItem).equals(newValue)) {
                 return;
             }
@@ -167,7 +181,6 @@ public class SalesController {
 
             loadSalesHistory();
             
-            // Refresh inventory items in combo box
             List<Item> updatedItems = itemDAO.getAllItems();
             masterItemList.setAll(updatedItems);
 

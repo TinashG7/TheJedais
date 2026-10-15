@@ -20,13 +20,13 @@
     </HBox>
 
     <!-- Table View -->
-    <TableView fx:id="itemsTable">
+    <TableView fx:id="itemsTable" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="itemIdColumn" text="ID"/>
-            <TableColumn fx:id="nameColumn" text="Name"/>
-            <TableColumn fx:id="categoryColumn" text="Category"/>
-            <TableColumn fx:id="priceColumn" text="Price"/>
-            <TableColumn fx:id="quantityColumn" text="Quantity"/>
+            <TableColumn fx:id="itemIdColumn" text="ID" prefWidth="60"/>
+            <TableColumn fx:id="nameColumn" text="Name" prefWidth="280"/>
+            <TableColumn fx:id="categoryColumn" text="Category" prefWidth="150"/>
+            <TableColumn fx:id="priceColumn" text="Price" prefWidth="100"/>
+            <TableColumn fx:id="quantityColumn" text="Quantity" prefWidth="100"/>
         </columns>
     </TableView>
 
@@ -34,12 +34,12 @@
     <VBox spacing="5" style="-fx-border-color: lightgray; -fx-padding: 10; -fx-border-radius: 5;">
         <Label text="Add New Item" style="-fx-font-weight: bold;"/>
         <HBox spacing="10">
-            <TextField fx:id="nameInput" promptText="Item Name" HBox.hgrow="ALWAYS"/>
+            <TextField fx:id="nameInput" promptText="Item Name" prefWidth="250" HBox.hgrow="ALWAYS"/>
             <ComboBox fx:id="categoryInputCombo" promptText="Select Category"/>
-            <TextField fx:id="priceInput" promptText="Selling Price"/>
-            <TextField fx:id="costPriceInput" promptText="Cost Price"/>
-            <TextField fx:id="quantityInput" promptText="Quantity"/>
-            <TextField fx:id="thresholdInput" promptText="Low Threshold"/>
+            <TextField fx:id="priceInput" promptText="Selling Price" prefWidth="90"/>
+            <TextField fx:id="costPriceInput" promptText="Cost Price" prefWidth="90"/>
+            <TextField fx:id="quantityInput" promptText="Quantity" prefWidth="80"/>
+            <TextField fx:id="thresholdInput" promptText="Low Threshold" prefWidth="100"/>
             <Button text="Add Item" onAction="#handleAddItem"/>
         </HBox>
     </VBox>
