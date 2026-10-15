@@ -25,6 +25,7 @@ public class InventoryListController {
 
         // Parameters: itemId, name, category, price (selling), costPrice, quantityInStock, lowStockThreshold
         itemsTable.getItems().add(new Item(1, "Sugar 1kg", "Groceries", 150.0, 120.0, 50, 10));
+        itemsTable.getItems().add(new Item(2, "Flour 1kg", "Groceries", 200.0, 150.0, 60, 10));
     }
 
     @FXML
