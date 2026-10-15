@@ -1,13 +1,13 @@
 package com.ims.dao;
 
-import com.ims.model.User;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.ims.model.User;
 
 public class UserDAO {
 
@@ -94,6 +94,25 @@ public class UserDAO {
 
         } catch (SQLException e) {
             System.err.println("Failed to add user: " + e.getMessage());
+        }
+    }
+
+    public void ensureDefaultUserExists() {
+        String checkSql = "SELECT COUNT(*) FROM users";
+        String insertSql = "INSERT INTO users (user_id, name, role, commission_rate) VALUES (1, 'Admin Shopkeeper', 'shopkeeper', 0.05)";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement checkStmt = conn.prepareStatement(checkSql);
+             ResultSet rs = checkStmt.executeQuery()) {
+
+            if (rs.next() && rs.getInt(1) == 0) {
+                try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                    insertStmt.executeUpdate();
+                    System.out.println("Default shopkeeper account created (ID: 1).");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Failed to seed default user: " + e.getMessage());
         }
     }
 

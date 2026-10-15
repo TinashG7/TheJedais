@@ -8,15 +8,15 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-  @Override
+    @Override
     public void start(Stage primaryStage) throws Exception {
-        // Initialize SQLite database and tables
+        // Initialize SQLite database tables
         DatabaseConnection.initializeDatabase();
 
-        // Load Main Dashboard View
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ims/ui/fxml/dashboard.fxml"));
+        // Launch into Login view first
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ims/ui/fxml/login.fxml"));
         Scene scene = new Scene(loader.load());
-        primaryStage.setTitle("Joshua's Shop IMS");
+        primaryStage.setTitle("Joshua's Shop IMS - Login");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
