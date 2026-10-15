@@ -60,6 +60,16 @@ public class DatabaseConnection {
             );
             """;
 
+        String createAuditLogs = """
+            CREATE TABLE IF NOT EXISTS audit_logs (
+                log_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                username TEXT,
+                action TEXT,
+                timestamp TEXT
+            );
+            """;
+
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
 
@@ -67,6 +77,7 @@ public class DatabaseConnection {
             stmt.execute(createUsers);
             stmt.execute(createSales);
             stmt.execute(createStockOrders);
+            stmt.execute(createAuditLogs);
 
             System.out.println("Database initialized successfully.");
 

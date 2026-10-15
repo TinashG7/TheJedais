@@ -4,40 +4,61 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.ims.ui.controllers.AdminController" spacing="15">
+<ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.ims.ui.controllers.AdminController"
+            fitToWidth="true" style="-fx-background-color: transparent; -fx-padding: 10;">
 
-    <Label text="Admin Control Panel — User Management &amp; System Logs" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-
-    <!-- User Creation Form -->
-    <VBox spacing="10" style="-fx-border-color: #2980b9; -fx-padding: 12; -fx-border-radius: 5; -fx-background-color: #f8f9f9;">
-        <Label text="Create New User Account" style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2c3e50;"/>
-        <HBox spacing="10" alignment="CENTER_LEFT">
-            <TextField fx:id="userNameInput" promptText="Full Name / Username" HBox.hgrow="ALWAYS"/>
-            <ComboBox fx:id="userRoleCombo" promptText="Select Role"/>
-            <PasswordField fx:id="userPasswordInput" promptText="Password"/>
-            <TextField fx:id="commissionInput" promptText="Commission Rate (e.g. 0.05)"/>
-            <Button text="Add User" onAction="#handleCreateUser" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;"/>
+    <VBox spacing="15">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="Admin Control Panel — User Management &amp; System Logs" style="-fx-font-size: 18px; -fx-font-weight: bold;" HBox.hgrow="ALWAYS"/>
+            <Button text="Export Store PDF Report" onAction="#handleExportPDF" style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-weight: bold;"/>
         </HBox>
-        <Label fx:id="statusLabel" style="-fx-font-weight: bold;"/>
-    </VBox>
 
-    <Label text="Existing System Users" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
-    
-    <!-- User Management Table -->
-    <TableView fx:id="usersTable" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn fx:id="userIdCol" text="User ID" prefWidth="80"/>
-            <TableColumn fx:id="nameCol" text="Username" prefWidth="200"/>
-            <TableColumn fx:id="roleCol" text="Role" prefWidth="150"/>
-            <TableColumn fx:id="passwordCol" text="Password" prefWidth="150"/>
-            <TableColumn fx:id="commissionCol" text="Commission Rate" prefWidth="150"/>
-        </columns>
-    </TableView>
-</VBox>
+        <!-- User Creation Form -->
+        <VBox spacing="10" style="-fx-border-color: #2980b9; -fx-padding: 12; -fx-border-radius: 5; -fx-background-color: #f8f9f9;">
+            <Label text="Create New User Account" style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2c3e50;"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="userNameInput" promptText="Full Name / Username" HBox.hgrow="ALWAYS"/>
+                <ComboBox fx:id="userRoleCombo" promptText="Select Role"/>
+                <PasswordField fx:id="userPasswordInput" promptText="Password"/>
+                <TextField fx:id="commissionInput" promptText="Commission Rate (e.g. 0.05)"/>
+                <Button text="Add User" onAction="#handleCreateUser" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;"/>
+            </HBox>
+            <Label fx:id="statusLabel" style="-fx-font-weight: bold;"/>
+        </VBox>
+
+        <!-- System Users Table -->
+        <VBox spacing="5">
+            <Label text="Existing System Users" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+            <TableView fx:id="usersTable" minHeight="160" prefHeight="180">
+                <columns>
+                    <TableColumn fx:id="userIdCol" text="User ID" prefWidth="80"/>
+                    <TableColumn fx:id="nameCol" text="Username" prefWidth="200"/>
+                    <TableColumn fx:id="roleCol" text="Role" prefWidth="150"/>
+                    <TableColumn fx:id="passwordCol" text="Password" prefWidth="150"/>
+                    <TableColumn fx:id="commissionCol" text="Commission Rate" prefWidth="150"/>
+                </columns>
+            </TableView>
+        </VBox>
+
+        <!-- Audit Logs Table -->
+        <VBox spacing="5">
+            <Label text="System Audit Logs (Login / Logout Records)" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+            <TableView fx:id="auditTable" minHeight="200" prefHeight="250">
+                <columns>
+                    <TableColumn fx:id="logIdCol" text="Log ID" prefWidth="70"/>
+                    <TableColumn fx:id="logUserCol" text="Username" prefWidth="150"/>
+                    <TableColumn fx:id="logActionCol" text="Action" prefWidth="120"/>
+                    <TableColumn fx:id="logTimeCol" text="Timestamp" prefWidth="220"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </VBox>
+</ScrollPane>

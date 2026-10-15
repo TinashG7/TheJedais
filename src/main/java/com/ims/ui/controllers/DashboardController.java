@@ -3,8 +3,10 @@ package com.ims.ui.controllers;
 import java.io.IOException;
 import java.util.List;
 
+import com.ims.dao.AuditLogDAO;
 import com.ims.dao.ItemDAO;
 import com.ims.model.Item;
+import com.ims.model.User;
 import com.ims.util.SessionManager;
 
 import javafx.fxml.FXML;
@@ -30,12 +32,12 @@ public class DashboardController {
     @FXML private Button adminPanelBtn;
 
     private final ItemDAO itemDAO = new ItemDAO();
+    private final AuditLogDAO auditLogDAO = new AuditLogDAO();
 
     @FXML
     public void initialize() {
         checkLowStockAlerts();
 
-        // Role-based navigation setup
         if (SessionManager.isAdmin()) {
             if (inventoryBtn != null) { inventoryBtn.setVisible(false); inventoryBtn.setManaged(false); }
             if (salesBtn != null) { salesBtn.setVisible(false); salesBtn.setManaged(false); }
@@ -46,10 +48,8 @@ public class DashboardController {
         } else if (SessionManager.isShopkeeper()) {
             if (adminPanelBtn != null) { adminPanelBtn.setVisible(false); adminPanelBtn.setManaged(false); }
 
-            // Shopkeeper lands directly on Reports page first
             showReportsView();
         } else {
-            // Owner view: default to Reports/Analytics
             showReportsView();
         }
     }
@@ -74,13 +74,25 @@ public class DashboardController {
     @FXML public void showOrdersView() { loadView("/com/ims/ui/fxml/stock_orders.fxml"); checkLowStockAlerts(); }
     @FXML public void showAdminView() { loadView("/com/ims/ui/fxml/admin_dashboard.fxml"); }
 
-    @FXML public void handleSwitchUser() { redirectToLogin(); }
+    @FXML 
+    public void handleSwitchUser() { 
+        logCurrentLogout();
+        redirectToLogin(); 
+    }
 
     @FXML
     public void handleLogout() {
+        logCurrentLogout();
         SessionManager.setCurrentUser(null);
         SalesController.setCurrentLoggedInUserId(0);
         redirectToLogin();
+    }
+
+    private void logCurrentLogout() {
+        User user = SessionManager.getCurrentUser();
+        if (user != null) {
+            auditLogDAO.logAction(user.getUserId(), user.getName(), "LOGGED_OUT");
+        }
     }
 
     private void redirectToLogin() {

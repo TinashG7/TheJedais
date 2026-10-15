@@ -2,6 +2,7 @@ package com.ims.ui.controllers;
 
 import java.io.IOException;
 
+import com.ims.dao.AuditLogDAO;
 import com.ims.dao.UserDAO;
 import com.ims.model.User;
 import com.ims.util.SessionManager;
@@ -21,6 +22,7 @@ public class LoginController {
     @FXML private Label statusLabel;
 
     private final UserDAO userDAO = new UserDAO();
+    private final AuditLogDAO auditLogDAO = new AuditLogDAO();
 
     @FXML
     public void initialize() {
@@ -61,6 +63,7 @@ public class LoginController {
         if (user.getPassword() != null && user.getPassword().equals(passInput)) {
             SessionManager.setCurrentUser(user);
             SalesController.setCurrentLoggedInUserId(user.getUserId());
+            auditLogDAO.logAction(user.getUserId(), user.getName(), "LOGGED_IN");
             loadDashboard(user);
         } else {
             showStatus("Invalid password. Please try again.", true);
