@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.ims.ui.controllers.SalesController" spacing="10">
+    
+    <Label text="Record New Sale" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+    <!-- Status Alert Label for UI feedback -->
+    <Label fx:id="statusMessageLabel" style="-fx-font-weight: bold;"/>
+
+    <!-- Record Sale Form -->
+    <VBox spacing="10" style="-fx-border-color: lightgray; -fx-padding: 10; -fx-border-radius: 5;">
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <ComboBox fx:id="itemComboBox" promptText="Type item name..." HBox.hgrow="ALWAYS"/>
+            <TextField fx:id="quantityField" promptText="Quantity Sold"/>
+            <TextField fx:id="shopkeeperIdField" promptText="Shopkeeper ID"/>
+            <Button text="Complete Sale" onAction="#handleRecordSale"/>
+        </HBox>
+        <HBox spacing="10">
+            <Label fx:id="unitPriceLabel" text="Unit Price: KSh 0.00" style="-fx-text-fill: gray;"/>
+            <Label fx:id="totalAmountLabel" text="Total: KSh 0.00" style="-fx-font-weight: bold;"/>
+        </HBox>
+    </VBox>
+
+    <Label text="Recent Sales History" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+
+    <!-- Sales History Table -->
+    <TableView fx:id="salesTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="saleIdColumn" text="Sale ID"/>
+            <TableColumn fx:id="itemIdColumn" text="Item ID"/>
+            <TableColumn fx:id="quantityColumn" text="Quantity Sold"/>
+            <TableColumn fx:id="totalColumn" text="Total Amount"/>
+            <TableColumn fx:id="dateColumn" text="Sale Date"/>
+            <TableColumn fx:id="shopkeeperColumn" text="Shopkeeper ID"/>
+        </columns>
+    </TableView>
+</VBox>

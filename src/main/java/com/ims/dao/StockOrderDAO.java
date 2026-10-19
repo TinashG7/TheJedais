@@ -1,71 +1,68 @@
 package com.ims.dao;
 
-import com.ims.model.StockOrder;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ims.model.StockOrder;
+
 public class StockOrderDAO {
 
     public void addStockOrder(StockOrder order) {
-        String sql = "INSERT INTO stock_orders (item_id, quantity_received, order_date, expense_amount) " +
-                     "VALUES (?, ?, ?, ?)";
+        String insertSql = "INSERT INTO stock_orders (item_id, quantity_received, order_date, expense_amount) VALUES (?, ?, ?, ?)";
+        String updateStockSql = "UPDATE items SET quantity_in_stock = quantity_in_stock + ? WHERE item_id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+        Connection conn = null;
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false); // Begin transaction
 
-            stmt.setInt(1, order.getItemId());
-            stmt.setInt(2, order.getQuantityReceived());
-            stmt.setString(3, order.getOrderDate().toString());
-            stmt.setDouble(4, order.getExpenseAmount());
+            // 1. Insert order record
+            try (PreparedStatement stmt = conn.prepareStatement(insertSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                stmt.setInt(1, order.getItemId());
+                stmt.setInt(2, order.getQuantityReceived());
+                stmt.setString(3, order.getOrderDate().toString());
+                stmt.setDouble(4, order.getExpenseAmount());
+                stmt.executeUpdate();
 
-            stmt.executeUpdate();
-
-            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    order.setOrderId(generatedKeys.getInt(1));
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        order.setOrderId(generatedKeys.getInt(1));
+                    }
                 }
             }
 
+            // 2. Increase stock quantity in inventory
+            try (PreparedStatement stmt = conn.prepareStatement(updateStockSql)) {
+                stmt.setInt(1, order.getQuantityReceived());
+                stmt.setInt(2, order.getItemId());
+                stmt.executeUpdate();
+            }
+
+            conn.commit(); // Commit transaction
         } catch (SQLException e) {
+            if (conn != null) {
+                try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            }
             System.err.println("Failed to add stock order: " + e.getMessage());
-        }
-    }
-
-    public List<StockOrder> getOrdersByDateRange(LocalDate start, LocalDate end) {
-        String sql = "SELECT * FROM stock_orders WHERE order_date >= ? AND order_date <= ?";
-        List<StockOrder> orders = new ArrayList<>();
-
-        LocalDateTime startOfRange = start.atStartOfDay();
-        LocalDateTime endOfRange = end.atTime(23, 59, 59);
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, startOfRange.toString());
-            stmt.setString(2, endOfRange.toString());
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    orders.add(mapRowToStockOrder(rs));
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    System.err.println("Failed to reset auto-commit: " + e.getMessage());
                 }
             }
-
-        } catch (SQLException e) {
-            System.err.println("Failed to get orders by date range: " + e.getMessage());
         }
-
-        return orders;
     }
 
-    public List<StockOrder> getAllOrders() {
-        String sql = "SELECT * FROM stock_orders";
+    public List<StockOrder> getAllStockOrders() {
+        String sql = "SELECT * FROM stock_orders ORDER BY order_id DESC";
         List<StockOrder> orders = new ArrayList<>();
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -73,23 +70,19 @@ public class StockOrderDAO {
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                orders.add(mapRowToStockOrder(rs));
+                StockOrder order = new StockOrder(
+                    rs.getInt("order_id"),
+                    rs.getInt("item_id"),
+                    rs.getInt("quantity_received"),
+                    LocalDateTime.parse(rs.getString("order_date")),
+                    rs.getDouble("expense_amount")
+                );
+                orders.add(order);
             }
-
         } catch (SQLException e) {
-            System.err.println("Failed to get all orders: " + e.getMessage());
+            System.err.println("Failed to get stock orders: " + e.getMessage());
         }
 
         return orders;
-    }
-
-    private StockOrder mapRowToStockOrder(ResultSet rs) throws SQLException {
-        StockOrder order = new StockOrder();
-        order.setOrderId(rs.getInt("order_id"));
-        order.setItemId(rs.getInt("item_id"));
-        order.setQuantityReceived(rs.getInt("quantity_received"));
-        order.setOrderDate(LocalDateTime.parse(rs.getString("order_date")));
-        order.setExpenseAmount(rs.getDouble("expense_amount"));
-        return order;
     }
 }
